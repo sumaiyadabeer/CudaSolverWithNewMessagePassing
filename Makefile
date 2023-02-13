@@ -1,14 +1,14 @@
 # nvcc -g -G src/Lsolve.cu src/b_function.cu src/communication.cu src/eta_function.cu src/helper.cu src/calculate_error.cu -std=c++11
 
-CC := nvcc
+CC := nvcc 
 SDIR := src
 ODIR := obj
-CFLAGS := -g -G -std=c++11 -lcublas
+CFLAGS := -g -std=c++11 -lcublas -lineinfo -prec-div=true # -G: device-debug
 
 
 
 main: obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o
-	$(CC) $(CFLAGS) obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o -o main
+	$(CC) $(CFLAGS) obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o -o main 
 	
 
 

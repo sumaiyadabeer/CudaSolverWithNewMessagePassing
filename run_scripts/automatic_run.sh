@@ -1,6 +1,6 @@
 # Usage: bash automatic_run.sh type size1 size2 ...
 # $1 is type rest is sizes
-
+cd ..
 for size in $*
 do
   if [[ $size == $1 ]]

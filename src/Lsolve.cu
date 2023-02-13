@@ -24,7 +24,7 @@
 
 // #define N 16
 // #define E 48
-#define THREADS_PER_BLOCK 32
+#define THREADS_PER_BLOCK 512
 
 #include <cuda_runtime.h>
 #include "cublas_v2.h"
@@ -41,36 +41,9 @@ using namespace std::chrono;
 
 __global__ void solve(int *row_ptr, float *b_sink, float *eta, float *beta, float kappa, float *x ){
 	int index = threadIdx.x + blockIdx.x * blockDim.x; 
-	//printf("%f \n", eta[index]/(row_ptr[index+1]-row_ptr[index]));	
-	//chk kappa
-	// x[index]=(-b_sink[0]/beta[0])*(eta[index]/(row_ptr[index+1]-row_ptr[index]));
 	x[index]=(eta[index]/(row_ptr[index+1]-row_ptr[index])); 
 }
 
-
-
-__global__ void solve_scale(int *row_ptr, float *b, float *b_sink, float *eta, float *beta, float kappa, float *x ){
-	int index = threadIdx.x + blockIdx.x * blockDim.x; 
-	float multiplier=0.0;
-
-	if(abs(b[index]*(-b_sink[0]/beta[0]))>0.0){
-		multiplier=(b[index]*(-b_sink[0]/beta[0]));
-		printf("%d\t %f \t %f\n",index, b[index], multiplier);
-	}
-	x[index]=x[index]*multiplier;
-	//printf("%f \n", eta[index]/(row_ptr[index+1]-row_ptr[index]));	
-	//chk kappa
-	//x[index]= (-b_sink/beta)*(eta[index]/(row_ptr[index+1]-row_ptr[index]));
-	//x[index]=(-b_sink[0]/beta[0])*(eta[index]/(row_ptr[index+1]-row_ptr[index]));
-}
-
-__global__ void solve_shift(int *row_ptr, float *b_sink, float *eta, float *beta, float kappa, float *x ){
-	// int index = threadIdx.x + blockIdx.x * blockDim.x; 
-	//printf("%f \n", eta[index]/(row_ptr[index+1]-row_ptr[index]));	
-	//chk kappa
-	//x[index]= (-b_sink/beta)*(eta[index]/(row_ptr[index+1]-row_ptr[index]));
-	//x[index]=(-b_sink[0]/beta[0])*(eta[index]/(row_ptr[index+1]-row_ptr[index]));
-}
 
 int cublas_two_norm(int N, float *vector, float *norm){
 	cublasStatus_t stat;
@@ -92,7 +65,12 @@ int cublas_two_norm(int N, float *vector, float *norm){
    
 	return EXIT_SUCCESS;
 }
-
+			// if (cublas_two_norm( N, d_eta_del, eta_del_norm) == EXIT_SUCCESS){	
+			// 	printf("two norm of eta is calculated using cublas \n");						
+			// }else{
+			// 	printf("cublas is not calculating norm for eta\n");
+			// 	return -1;
+			// }
 
 
 int main(void) {
@@ -233,8 +211,10 @@ int main(void) {
 
 	
 	get_b_sink<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b, d_b_sink, N, d_b_sink_index); // return min vale of sink (-9)
-	CUDA_CALL(cudaDeviceSynchronize());
+	// CUDA_CALL(cudaDeviceSynchronize());
 	CUDA_CALL(cudaMemcpy(&sink_index, d_b_sink_index, int_size, cudaMemcpyDeviceToHost));
+	printf("sink index : %d \n", sink_index );
+
 	
 
 	convert_b_to_J<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b, N, d_b_sink);
@@ -242,29 +222,6 @@ int main(void) {
 	CUDA_CALL(cudaMemcpy(b, d_b, N*float_size, cudaMemcpyDeviceToHost));
 	convert_J_to_2betaJ<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b, N, d_beta); //bcz this will get halved after entering the loop
 	CUDA_CALL(cudaDeviceSynchronize());
-
-	//this is calculation of 2 norm of ||DJ||_2 using cublas
-
-    // cublasStatus_t stat;
-    // cublasHandle_t handle;
-    // stat = cublasCreate(&handle);
-    // if (stat != CUBLAS_STATUS_SUCCESS) {
-    //     printf ("CUBLAS initialization failed\n");
-    //     return EXIT_FAILURE;
-    // }
-    // // calculate_DJ<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr, d_J, d_b); 
-    // stat = cublasSnrm2(handle, N , d_b, 1, rhs_norm);
-    // if(stat != CUBLAS_STATUS_SUCCESS) {
-    //     printf ("b norm is not calculated using Cublas");
-    //     cudaFree (d_b);
-    //     cublasDestroy(handle);
-    //     return EXIT_FAILURE;
-    // }
-	// printf("%f \n", *rhs_norm);
-	// *rhs_norm = 0.0;
-
-	// printf("%d", cublas_two_norm( N, d_b, rhs_norm));
-	// printf("%f \n", *rhs_norm);
 
 	
 	do{
@@ -277,11 +234,11 @@ int main(void) {
 		epoch = 0;
 		stable_epoch = 0;
 
-		while (send_recv_rounds < 10.0) //this loop is to make sure to generate packet in group of epoch.. waz ctraeting problem inn visualization
+		while (send_recv_rounds < 10.0) //this loop is to make sure to generate packet in group of epoch.. waz creating problem inn visualization
 			send_recv_rounds *= 10.0;
 				
 		CUDA_CALL(cudaMemcpy(d_beta, beta, sizeof(float), cudaMemcpyHostToDevice));
-		update_b<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b);
+		update_b<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b); // returns b=\beta*b
 		// CUDA_CALL(cudaMemcpy(b, d_b, N*sizeof(float), cudaMemcpyDeviceToHost));
 		// CUDA_CALL(cudaDeviceSynchronize());
 		// for (int i=0; i<N; i++)
@@ -293,6 +250,7 @@ int main(void) {
 		
 		do{
 			get_b_sink<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_b, d_b_sink, N, d_b_sink_index);
+			CUDA_CALL(cudaDeviceSynchronize());
 			CUDA_CALL(cudaMemcpy(beta, d_b_sink, sizeof(float), cudaMemcpyDeviceToHost));
 			*beta = -*beta;
 			printf("In DRW compute iter: %d beta: %f \n", epoch, *beta);
@@ -304,9 +262,9 @@ int main(void) {
 				stable_epoch++;
 				// printf("%d ", epoch);
 				send<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr, d_b, d_col_off, d_values, d_queue, d_outbox, d_cnt, d_state,  rand(), rand(), E);
-				CUDA_CALL(cudaDeviceSynchronize());
+				// CUDA_CALL(cudaDeviceSynchronize());
 				recv<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_outbox, d_queue, d_b, N);
-				CUDA_CALL(cudaDeviceSynchronize());
+				// CUDA_CALL(cudaDeviceSynchronize());
 				
 				// CUDA_CALL(cudaMemcpy(queue, d_queue,(N)*sizeof(int), cudaMemcpyDeviceToHost));
 				// printf("\nprinting queues: \t");
@@ -332,16 +290,13 @@ int main(void) {
 
 			solve<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr, d_b_sink, d_eta,  d_beta, 0.0001 , d_x );//(int *row_ptr, float *b_sink, float *eta, float *beta, float kappa, float *x )
 			CUDA_CALL(cudaDeviceSynchronize());			
-			CUDA_CALL(cudaMemcpy(eta, d_x, (N)*sizeof(
-				float), cudaMemcpyDeviceToHost));
+			CUDA_CALL(cudaMemcpy(eta, d_x, (N)*sizeof(float), cudaMemcpyDeviceToHost));
 
 			printf("\nprinting x \n");
 			for (int i=0; i<N; i++)
 				printf("%f\n", eta[i]);
 			printf("printing x ends \n");
-			//call kernel for x-x' // later when calculation of x got some speed
-			//print x-x' for each coordinate // later when calculation of x got some speed
-
+			
 			Lx_b<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr,  d_col_off, d_values, d_b, d_b_sink, d_beta, d_L, d_x, d_Lx_b, N);
 			CUDA_CALL(cudaDeviceSynchronize());
 			CUDA_CALL(cudaMemcpy(result, d_Lx_b, N*sizeof(float), cudaMemcpyDeviceToHost));
@@ -357,17 +312,10 @@ int main(void) {
 			one_norm<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_Lx_b,d_Lx_b_norm, N);
 			CUDA_CALL(cudaDeviceSynchronize());
 			CUDA_CALL(cudaMemcpy(Lx_b_norm, d_Lx_b_norm, sizeof(float), cudaMemcpyDeviceToHost));
-			// if (cublas_two_norm( N, d_Lx_b, Lx_b_norm) == EXIT_SUCCESS){
-			// 	printf("two norm of Lx-b is calculated using cublas \n");				
-			// }else{
-			// 	printf("cublas is not calculating norm for Lx-b \n");
-			// 	return -1;
-			// }
+		
 			*Lx_b_norm = sqrt(*Lx_b_norm);
-			std::cout<<"Error is " << (*Lx_b_norm)<<std::endl; //<< should be (*Lx_b_norm)/((*beta)*(*rhs_norm)) for actual error
-			//call two norm of x-x' here // later when calculation of x got some speed
-			//print two norm of x-x' here // later when calculation of x got some speed
-			
+			std::cout<<"Error is " << (*Lx_b_norm)<<std::endl; 
+
 
 			// int *LapMat = (int*)malloc(N*N*sizeof(int));
 			// cudaMemcpy(LapMat, d_L, N*N*sizeof(int), cudaMemcpyDeviceToHost);                
@@ -382,28 +330,21 @@ int main(void) {
 			/**************Termination condition prep based on eta del *******************/
 			calculate_eta_del<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta, d_eta_tminusone);
 			CUDA_CALL(cudaDeviceSynchronize());
-			// if (cublas_two_norm( N, d_eta_del, eta_del_norm) == EXIT_SUCCESS){	
-			// 	printf("two norm of eta is calculated using cublas \n");						
-			// }else{
-			// 	printf("cublas is not calculating norm for eta\n");
-			// 	return -1;
-			// }
 			two_norm<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta_del_norm, N);
 			one_norm<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta_del_norm, N);
 			CUDA_CALL(cudaDeviceSynchronize());
 			CUDA_CALL(cudaMemcpy(eta_del_norm, d_eta_del_norm, sizeof(float), cudaMemcpyDeviceToHost));
 			*eta_del_norm = sqrt(*eta_del_norm);
-			// solve<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr, d_b_sink, d_eta,  d_beta, 0.0001 , d_x );
-			// cudaDeviceSynchronize();
+
 
 			/**************Termination condition prep if queues are saturated *******************/
 			get_eta_max<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta, d_eta_max, N);
 			CUDA_CALL(cudaDeviceSynchronize());
 			CUDA_CALL(cudaMemcpy(eta_max, d_eta_max, sizeof(float), cudaMemcpyDeviceToHost));	
 			printf("Epoch: %d \t eta_del_norm: %f \t eta_del_norm<=EPS: %s \t eta_del_norm>0: %s \t eta_max_inner: %f\n", epoch, *eta_del_norm, (*(eta_del_norm) <= EPS)?"T":"F", (*(eta_del_norm)>0)?"T":"F", *eta_max);
+			
+			
 			/**************Termination condition prep for Q[sink]/(1+sum(Q)) *******************/
-	
-
 			CUDA_CALL(cudaMemcpy(&Q_sink_index, d_queue+sink_index, int_size, cudaMemcpyDeviceToHost));
 			printf("sink index : %d \n", sink_index );
 			one_norm<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_queue, d_sum_Q, N);
@@ -425,6 +366,7 @@ int main(void) {
 					break;
 				}
 			}else if((*eta_max > eta_max_threshold)){
+				eta_del_lt_eps_more_thn_i = 0;
 				get_eta_max<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta, d_eta_max, N); // these three lines are going to be used after exiting the loop 
 				CUDA_CALL(cudaDeviceSynchronize());
 				CUDA_CALL(cudaMemcpy(eta_max, d_eta_max, sizeof(float), cudaMemcpyDeviceToHost));
@@ -435,7 +377,9 @@ int main(void) {
 					break;
 				}
 
-			}else if(frac_of_packet_sunk > frac_of_packet_sunk_threshold) {
+			}else if(frac_of_packet_sunk > frac_of_packet_sunk_threshold){
+				eta_del_lt_eps_more_thn_i = 0;
+				eta_gt_chk_more_thn_i = 0;
 				get_eta_max<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta, d_eta_max, N); // these three lines are going to be used after exiting the loop 
 				CUDA_CALL(cudaDeviceSynchronize());
 				CUDA_CALL(cudaMemcpy(eta_max, d_eta_max, sizeof(float), cudaMemcpyDeviceToHost));
@@ -454,6 +398,7 @@ int main(void) {
 					
 
 			}else{
+				eta_del_lt_eps_more_thn_i = 0;
 				eta_gt_chk_more_thn_i = 0;
 				frac_of_packet_sunk_more_thn_i = 0;
 			}
@@ -466,10 +411,6 @@ int main(void) {
 		
 		std::cout<<time_span.count()<<" sec"<<std::endl;
 		
-		// printf("x_solve.py*beta: ");
-		// for(int i=0; i<N; i++)
-		// 	printf("%f \t", (jacobi[i])*(*beta));
-		// printf("\n");
 
 	}while((*eta_max) > eta_max_threshold && (*eta_max)>0);
 	

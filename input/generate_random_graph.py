@@ -76,7 +76,7 @@ if __name__ == "__main__":
     if args.sparsity == 'sparse':
         m = int(n * random.uniform(1, 10))
     else:
-        m = random.randint(n - 1, n*(n - 1)//2)
+        m = random.randint(n*(n - 1)//4, n*(n - 1)//2)
 
     A, m = generate_undirectedWeightedConnectedGraph(n, m)
 

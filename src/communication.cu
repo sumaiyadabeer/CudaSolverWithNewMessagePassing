@@ -18,9 +18,9 @@ using namespace std;
 
 __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *queue, int *outbox, int *cnt, curandState *my_curandstate, int seed, int seed2, int E){
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
-	float rand = curand_uniform(my_curandstate+index);
+	float rand;
 	//move queue length to register for each thread
-	int Q = 0; //define that in Shared mem
+	int Q; //define that in Shared mem
 	// if(b[index]>=0.0)
 	Q = queue[index];
 	
@@ -31,7 +31,7 @@ __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *que
 //generate packet according b
 
 curand_init(seed, index, 0, &my_curandstate[index]);
-rand = curand_uniform(my_curandstate);
+rand = curand_uniform(my_curandstate+index);
 if(b[index] > 0){
 	if(rand <= b[index])
 		{
@@ -49,9 +49,9 @@ if (Q>0 && b[index]>=0.0){
 	rand = curand_uniform(my_curandstate);
 	rand = rand*(row_ptr[index+1]-row_ptr[index]);
 
-	
-	ASSERT_EX((row_ptr[index]+(floor(rand))) < row_ptr[index+1], printf("neighbour number selected = %d \t degree is  = %d \n", int(rand) ,  (row_ptr[index+1]-row_ptr[index])));
-	assert( (row_ptr[index]+(floor(rand))) < row_ptr[index+1] ); // to chk actual neighbour is selected
+	ASSERT_EX(int(row_ptr[index]+(int(floor(rand)))) < row_ptr[index+1], printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t next row_ptr is = %d\n",index,  int(rand) , int(row_ptr[index]+(floor(rand))), (row_ptr[index+1]-row_ptr[index]), row_ptr[index+1]));
+	//ASSERT_EX(int(row_ptr[index]+(floor(rand))) < row_ptr[index+1], printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t next row_ptr is = %d\n",index,  int(rand) , int(row_ptr[index]+(floor(rand))), (row_ptr[index+1]-row_ptr[index]), row_ptr[index+1]));
+	// assert( (row_ptr[index]+(floor(rand))) < row_ptr[index+1] ); // to chk actual neighbour is selected
 	neighbour = col_off[row_ptr[index]+int(floor(rand))];
 	// printf(" [%d -> %d] ", index, neighbour );
 	//write that neighbour to outbox 

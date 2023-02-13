@@ -5,8 +5,8 @@ type_of_graph=$1 # no space: otherwise it will treat this as an argument
 type_of_expander=margulis #margulis chordal_cycle paley
 start_index=1
 
-frac_of_source_in_b=0.0
-let sink_index=$2/2   #$2-1 : end
+frac_of_source_in_b=0.25
+# let sink_index=$2/2   #$2-1 : end
 source_index=0
 
 # echo "sink at" $sink_index
@@ -29,7 +29,7 @@ else
     fi 
     python3 convert_csr.py -f generated_graph -i $start_index 
 fi
-python3 genb.py $no_of_nodes --fsources $frac_of_source_in_b --sink_index $sink_index --source_index $source_index &&
+python3 genb.py $no_of_nodes --fsources $frac_of_source_in_b && #--sink_index $sink_index --source_index $source_index
 cat generated_graph_converted b$no_of_nodes.inp > ../generated_input.txt
 echo "see the input file: generated_input.txt for $type_of_graph Graph of $no_of_nodes nodes in parent folder"
 rm generated_graph generated_graph_converted b$no_of_nodes.inp

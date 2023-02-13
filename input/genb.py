@@ -10,8 +10,8 @@ def generate_b(n, nsinks, sink_index, source_index):
         b[i] = 1
     b[-1] = -sum(b)
 
-    b[sink_index] = -1
-    b[source_index] = 1
+#     b[sink_index] = -1
+#     b[source_index] = 1
     
     flag=0
     while(flag == 0):

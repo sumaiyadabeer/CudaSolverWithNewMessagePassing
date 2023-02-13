@@ -45,10 +45,11 @@ __global__ void update_b( float *b){
 __global__ void get_b_sink( float *b, float *b_sink, int n, int *sink_index){
 
         int index = threadIdx.x + blockIdx.x * blockDim.x;
-        b_sink[0]=0.0;
-
+        // b_sink[0]=0.0;
+        // __syncthreads();
         if (b[index] < 0.0){
                 b_sink[0] = b[index];
                 sink_index[0] = index;
+                // printf("%d", index);
         }
 }
