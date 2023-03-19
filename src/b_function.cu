@@ -3,14 +3,17 @@
 
 __global__ void initialize(float *eta, int *cnt, int *queue, int *outbox, int *L, int n, int e, curandState *state, int rand){
         int index = threadIdx.x + blockIdx.x * blockDim.x;
-	for (int i=0;i<n;i++){
-		L[n*(index)+i]=0;
-	}
-        queue[index]=0;
+	// for (int i=0;i<n;i++){
+	// 	L[n*(index)+i]=0;
+	// }    
+        
+        curand_init(rand, index, 0, &state[index]);
+        float randd = curand_uniform(state+index);
+        // queue[index]= 0;
+        queue[index]= int((3)*randd);
         outbox[index]=-1;
         cnt[index]=0;
         eta[index]=0;
-        curand_init(rand, index, 0, &state[index]);
         //define N and E in const memory
         //define beta globaly to 1
 

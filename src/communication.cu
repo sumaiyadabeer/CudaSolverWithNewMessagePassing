@@ -23,6 +23,7 @@ __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *que
 	int Q; //define that in Shared mem
 	// if(b[index]>=0.0)
 	Q = queue[index];
+	outbox[index] = -1; //remove this in simplest recv
 	
 
 //printf("%f \t", b[index]);
@@ -45,14 +46,24 @@ if(b[index] > 0){
 //select random neighbour based on weight 
 if (Q>0 && b[index]>=0.0){
 	int neighbour;
+	int degree = row_ptr[index+1]-row_ptr[index];
 	curand_init(seed2, index, 0, &my_curandstate[index]);
 	rand = curand_uniform(my_curandstate);
-	rand = rand*(row_ptr[index+1]-row_ptr[index]);
+	rand = rand*degree;
+	rand = int(floorf(rand));
+	if ( rand >= degree ){
+		rand = degree - 1;
+	}
 
-	ASSERT_EX(int(row_ptr[index]+(int(floor(rand)))) < row_ptr[index+1], printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t next row_ptr is = %d\n",index,  int(rand) , int(row_ptr[index]+(floor(rand))), (row_ptr[index+1]-row_ptr[index]), row_ptr[index+1]));
+
+	ASSERT_EX( int(row_ptr[index]+(int(rand))) < row_ptr[index+1], 
+	printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t current row_ptr is = %d \t next row_ptr is = %d\n",
+	index,  int(rand) , int(row_ptr[index]+(floorf(rand))), degree, row_ptr[index],  row_ptr[index+1])
+	);
+	
 	//ASSERT_EX(int(row_ptr[index]+(floor(rand))) < row_ptr[index+1], printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t next row_ptr is = %d\n",index,  int(rand) , int(row_ptr[index]+(floor(rand))), (row_ptr[index+1]-row_ptr[index]), row_ptr[index+1]));
 	// assert( (row_ptr[index]+(floor(rand))) < row_ptr[index+1] ); // to chk actual neighbour is selected
-	neighbour = col_off[row_ptr[index]+int(floor(rand))];
+	neighbour = col_off[row_ptr[index]+int((floorf(rand)))];
 	// printf(" [%d -> %d] ", index, neighbour );
 	//write that neighbour to outbox 
 	outbox[index] = neighbour;
@@ -69,6 +80,7 @@ if (Q>0 && b[index]>=0.0){
 	
 
 	//copy reg value to device memory
+
 	
 }
 
@@ -93,6 +105,19 @@ __global__ void recv(int *outbox, int *queue, float *b, int n){
 	//define shared memory and do looping to get one out box and increment the associated packet to shared mem
 	//update the queue value to reg by shared mem 
 	//chk eta_t - eta_t-1<epsilon or not
+
+} 
+
+// Thrust Recv
+__global__ void thrust_recv(int *outbox_count, int *queue, int *outbox_index, int n){
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+	
+	if (outbox_index[index] != -1){
+		// printf("%d: copying %d packets to %d\n", index, outbox_count[index], outbox_index[index]);
+		queue[outbox_index[index]] = queue[outbox_index[index]] + outbox_count[index];
+	}
+// outbox[index] = -1;
+// outbox_index[index] = -1;
 
 } 
 

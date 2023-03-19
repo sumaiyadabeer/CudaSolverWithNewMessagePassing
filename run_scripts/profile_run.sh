@@ -2,7 +2,7 @@
 # cd input
 # bash run.sh cycle 8
 # cd ..
-cd ..
+# cd ..
 timestamp=$(date +%T)
 # $1+=$timestamp
 filename="${1}_${timestamp}"

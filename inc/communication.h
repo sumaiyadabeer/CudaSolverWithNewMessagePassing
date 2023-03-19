@@ -16,5 +16,5 @@
 #include <assert.h>
 
 __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *queue, int *outbox, int *cnt, curandState *my_curandstate, int seed, int seed2, int E);
-//Simplest rcv 
 __global__ void recv(int *outbox, int *queue, float *b, int n);
+__global__ void thrust_recv(int *outbox, int *queue, int *outbox_index, int n);

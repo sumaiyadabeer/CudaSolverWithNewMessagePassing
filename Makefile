@@ -3,12 +3,12 @@
 CC := nvcc 
 SDIR := src
 ODIR := obj
-CFLAGS := -g -std=c++11 -lcublas -lineinfo -prec-div=true # -G: device-debug
+CFLAGS := -arch=sm_70 -std=c++11 -prec-div=true # -G: device-debug -g host-debug -lineinfo for gdblinetrack -lcublas
 
 
 
 main: obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o
-	$(CC) $(CFLAGS) obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o -o main 
+	$(CC) $(CFLAGS) obj/Lsolve.o obj/b_function.o  obj/calculate_error.o obj/communication.o obj/eta_function.o obj/helper.o -o main
 	
 
 

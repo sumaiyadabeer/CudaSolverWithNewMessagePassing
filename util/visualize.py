@@ -104,7 +104,7 @@ def sample_beta_iter(lines, search_string, iter, beta):
 def make_multiple_line_plot(beta, iter, error, filename, path_to_save, x_title, y_title, plot_title):
     length =  len(beta)
     assert len(iter) == length
-    assert len(error) == length
+    # assert len(error) == length
     x_values = []
     y_values = []
     indices = []
@@ -123,15 +123,13 @@ def make_multiple_line_plot(beta, iter, error, filename, path_to_save, x_title, 
 
     indices.append(len(iter)+1)
 
+#plot for scatter
+    for i in range(len(error)-1):
+        plt.scatter(beta_values[i], error[i],label = str(beta_values[i]) )
+    
+#plot for line    
     # for i in range(len(indices)-1):
-    #     print(indices[i], indices[i+1]-1)
-
-    # print(indices[-1], len(iter))
-    for i in range(len(indices)-1):
-        # beta=1/2**(i+1)
-        # print(indices[i], indices[i+1]-1)
-        #see this if graph misbehave
-        plt.plot(iter[indices[i]+1:indices[i+1]-1], error[indices[i]+1:indices[i+1]-1],label = str(beta_values[i]) )
+    #     plt.plot(iter[indices[i]+1:indices[i+1]-1], error[indices[i]+1:indices[i+1]-1],label = str(beta_values[i]) )
     
 
     plt.xlabel(x_title)
