@@ -1,7 +1,7 @@
-for prob_of_edge in 21 11 
+for prob_of_edge in 01 05 10 15 20 25 30 35 40 45 50 55 60 65 70 75 
 do
     echo ${prob_of_edge}
-    for size in 2016 4000 6016 8000 10016 12000 14016 16000
+    for size in 16000
     do 
         echo ${size}
         rm stat

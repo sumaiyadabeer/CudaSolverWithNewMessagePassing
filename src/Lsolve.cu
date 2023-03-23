@@ -80,8 +80,8 @@ float infinity_norm(const thrust::device_ptr<float> &x, int N){
 }
 int main(int argc, char** argv) {
 	
-	int devNum = -1;
-    CUDA_CALL(cudaGetDevice(&devNum));
+	int devNum = 0;
+    // CUDA_CALL(cudaGetDevice(&devNum));
     CUDA_CALL(cudaSetDevice(devNum));
 	printf("Code is executing on device %d \n",devNum );
 
@@ -122,9 +122,9 @@ int main(int argc, char** argv) {
 
 	CUDA_CALL(cudaMalloc((void **)&d_eta_sum, float_size));
 	CUDA_CALL(cudaMalloc((void **)&d_eta_max, float_size));
-	CUDA_CALL(cudaMalloc((void **)&d_eta_del_norm, float_size));
+	// CUDA_CALL(cudaMalloc((void **)&d_eta_del_norm, float_size));
 	CUDA_CALL(cudaMalloc((void **)&d_eta, N*float_size));
-	CUDA_CALL(cudaMalloc((void **)&d_eta_del, N*float_size));
+	// CUDA_CALL(cudaMalloc((void **)&d_eta_del, N*float_size));
 	CUDA_CALL(cudaMalloc((void **)&d_eta_tminusone, N*float_size));
 	CUDA_CALL(cudaMalloc((void **)&d_b_sink, float_size));
 	CUDA_CALL(cudaMalloc((void **)&d_b_sink_index, int_size));
@@ -223,7 +223,7 @@ int main(int argc, char** argv) {
 	
 	const double EPS =  1.19209e-07; //1.0/(N*N*N);
 	double eta_max_threshold = 0.85; //(0.75)*(1-EPS);	see the logic in paper
-	float frac_of_packet_sunk_threshold = 0.8;
+	float frac_of_packet_sunk_threshold = 0.95;
 
 	int num_of_blocks =  (N+THREADS_PER_BLOCK-1)/THREADS_PER_BLOCK;  
 	// unsigned int max_epoch	= 100000; //100000; //should depend on graph size and topology
@@ -300,48 +300,39 @@ int main(int argc, char** argv) {
 				// printf("%d ", epoch);
 				send<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_row_ptr, d_b, d_col_off, d_values, d_queue, d_outbox, d_cnt, d_state,  rand(), rand(), E);
 				// CUDA_CALL(cudaDeviceSynchronize());
-				// recv<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_outbox, d_queue, d_b, N);
+				recv<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_outbox, d_queue, d_b, N);
 				
-				
-				CUDA_CALL(cudaDeviceSynchronize());
-				thrust::device_ptr<int> outbox_dev_ptr;
-
-				outbox_dev_ptr = thrust::device_pointer_cast(d_outbox);
-
-				thrust::fill(dev_ones.begin(), dev_ones.end(), 1);
-
-				// sort out vector 
-				thrust::sort(outbox_dev_ptr, outbox_dev_ptr + N);
-
-
-
-				// create two device arrays for output key value				
-				thrust::fill(output_keys.begin(), output_keys.end(), -1);
-				thrust::fill(output_freqs.begin(), output_freqs.end(), -1);
-
-
-				// reduce out and count 
-
-				new_end = thrust::reduce_by_key(outbox_dev_ptr, outbox_dev_ptr+N, dev_ones.begin(), output_keys.begin(), output_freqs.begin());
+				// //Thrust rcv
+				// CUDA_CALL(cudaDeviceSynchronize());
+				// thrust::device_ptr<int> outbox_dev_ptr;
+				// outbox_dev_ptr = thrust::device_pointer_cast(d_outbox);
+				// thrust::fill(dev_ones.begin(), dev_ones.end(), 1);
+				// // sort out vector 
+				// thrust::sort(outbox_dev_ptr, outbox_dev_ptr + N);
+				// // create two device arrays for output key value				
+				// thrust::fill(output_keys.begin(), output_keys.end(), -1);
+				// thrust::fill(output_freqs.begin(), output_freqs.end(), -1);
+				// // reduce out and count 
+				// new_end = thrust::reduce_by_key(outbox_dev_ptr, outbox_dev_ptr+N, dev_ones.begin(), output_keys.begin(), output_freqs.begin());
 					
 
-				// CUDA_CALL(cudaDeviceSynchronize());
-				// int_dev_ptr = thrust::device_pointer_cast(d_queue);
-				// printf("\nQ_b4\t");
-				// thrust::copy(int_dev_ptr, int_dev_ptr+N, std::ostream_iterator<int>(std::cout, " "));
+				// // CUDA_CALL(cudaDeviceSynchronize());
+				// // int_dev_ptr = thrust::device_pointer_cast(d_queue);
+				// // printf("\nQ_b4\t");
+				// // thrust::copy(int_dev_ptr, int_dev_ptr+N, std::ostream_iterator<int>(std::cout, " "));
 
-				int_dev_ptr = output_keys.data();
-				int_dev_ptr2 = output_freqs.data();
+				// int_dev_ptr = output_keys.data();
+				// int_dev_ptr2 = output_freqs.data();
 
-				d_outbox_count = thrust::raw_pointer_cast(int_dev_ptr2);
-				d_outbox_index = thrust::raw_pointer_cast(int_dev_ptr);				
+				// d_outbox_count = thrust::raw_pointer_cast(int_dev_ptr2);
+				// d_outbox_index = thrust::raw_pointer_cast(int_dev_ptr);				
 
-				thrust_recv<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_outbox_count, d_queue, d_outbox_index, N);
+				// thrust_recv<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_outbox_count, d_queue, d_outbox_index, N);
 			
-				// CUDA_CALL(cudaDeviceSynchronize());
-				// int_dev_ptr = thrust::device_pointer_cast(d_queue);
-				// printf("\nQ_after\t");
-				// thrust::copy(int_dev_ptr, int_dev_ptr+N, std::ostream_iterator<int>(std::cout, " "));
+				// // CUDA_CALL(cudaDeviceSynchronize());
+				// // int_dev_ptr = thrust::device_pointer_cast(d_queue);
+				// // printf("\nQ_after\t");
+				// // thrust::copy(int_dev_ptr, int_dev_ptr+N, std::ostream_iterator<int>(std::cout, " "));
 
 				 
 				}
@@ -354,11 +345,11 @@ int main(int argc, char** argv) {
 				// return 0;
 
 			/**************Termination condition prep based on eta del *******************/
-			calculate_eta_del<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta, d_eta_tminusone);
-			//not sure if we need to put cuda device synchronize
-			CUDA_CALL(cudaDeviceSynchronize());
-			dev_ptr = thrust::device_pointer_cast(d_eta_del);
-			*eta_del_norm = one_norm(dev_ptr, N);
+			// calculate_eta_del<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta, d_eta_tminusone);
+			// //not sure if we need to put cuda device synchronize
+			// CUDA_CALL(cudaDeviceSynchronize());
+			// dev_ptr = thrust::device_pointer_cast(d_eta_del);
+			// *eta_del_norm = one_norm(dev_ptr, N);
 			
 			// printf("%f \n", temp);
 			// two_norm<<<num_of_blocks,THREADS_PER_BLOCK>>>(d_eta_del,d_eta_del_norm, N);
@@ -375,7 +366,7 @@ int main(int argc, char** argv) {
 			*eta_max = infinity_norm(dev_ptr, N);
 			// CUDA_CALL(cudaDeviceSynchronize());
 			// CUDA_CALL(cudaMemcpy(eta_max, d_eta_max, sizeof(float), cudaMemcpyDeviceToHost));	
-			printf("Epoch: %d \t eta_del_norm: %f \t eta_del_norm<=EPS: %s \t eta_del_norm>0: %s \t eta_max_inner: %f\n", epoch, *eta_del_norm, (*(eta_del_norm) <= EPS)?"T":"F", (*(eta_del_norm)>0)?"T":"F", *eta_max);
+			// printf("Epoch: %d \t eta_del_norm: %f \t eta_del_norm<=EPS: %s \t eta_del_norm>0: %s \t eta_max_inner: %f\n", epoch, *eta_del_norm, (*(eta_del_norm) <= EPS)?"T":"F", (*(eta_del_norm)>0)?"T":"F", *eta_max);
 			
 			
 			/**************Termination condition prep for Q[sink]/(1+sum(Q)) *******************/
@@ -391,8 +382,8 @@ int main(int argc, char** argv) {
 			if(((*(eta_del_norm) <= EPS) && (*(eta_del_norm)>0))){	
 				eta_del_lt_eps_more_thn_i++;
 				if (eta_del_lt_eps_more_thn_i >= 10){
-					printf("eta_del_norm is lt threshold so breaking\n");
-					break;
+					// printf("eta_del_norm is lt threshold so breaking\n");
+					// break;
 				}
 			}else if((*eta_max >= eta_max_threshold)){
 				eta_del_lt_eps_more_thn_i = 0;
@@ -490,7 +481,9 @@ int main(int argc, char** argv) {
 
 // Cleanup
 	free(row_ptr);    free(b);    free(eta);    free(col_off);    free(values);    free(rhs_norm);	free(beta);    free(result); 	free(eta_del_norm); 	free(eta_sum); 	  free(eta_max);
-	cudaFree(d_row_ptr); 	cudaFree(d_b); 	cudaFree(d_J); 	cudaFree(d_b_norm); 	cudaFree(d_x); 		cudaFree(d_eta_sum);	cudaFree(d_eta_max); 	cudaFree(d_eta_del_norm); 	cudaFree(d_eta); 	cudaFree(d_eta_del);	cudaFree(d_eta_tminusone); 	cudaFree(d_b_sink); 	cudaFree(d_b_sink_index);	cudaFree(d_beta);	cudaFree(d_col_off); 	cudaFree(d_values); 	cudaFree(d_b_sum);	cudaFree(d_queue); 	cudaFree(d_outbox);	cudaFree(d_cnt);	cudaFree(d_L);	cudaFree(&d_state);
+	cudaFree(d_row_ptr); 	cudaFree(d_b); 	cudaFree(d_J); 	cudaFree(d_b_norm); 	cudaFree(d_x); 		cudaFree(d_eta_sum);	cudaFree(d_eta_max); 	
+	// cudaFree(d_eta_del_norm); 	cudaFree(d_eta_del); 	
+	cudaFree(d_eta);	cudaFree(d_eta_tminusone); 	cudaFree(d_b_sink); 	cudaFree(d_b_sink_index);	cudaFree(d_beta);	cudaFree(d_col_off); 	cudaFree(d_values); 	cudaFree(d_b_sum);	cudaFree(d_queue); 	cudaFree(d_outbox);	cudaFree(d_cnt);	cudaFree(d_L);	cudaFree(&d_state);
 		// free(Lx_b_norm);
 		// cudaFree(d_Lx_b); 	cudaFree(d_Lx_b_norm);
 	return 0;

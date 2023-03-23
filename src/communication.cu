@@ -96,7 +96,9 @@ __global__ void recv(int *outbox, int *queue, float *b, int n){
 	}
 
 	queue[index] = queue[index] + Q;
-	outbox[index] = -1;
+	//this might be creating the problem
+	// outbox[index] = -1;
+	
 	//set here the index of sink to whatever now setting as n-1
 	// if(b[index]<0){
 	// 	queue[index]=0;
