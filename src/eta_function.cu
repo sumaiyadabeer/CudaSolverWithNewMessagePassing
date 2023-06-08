@@ -15,6 +15,17 @@ __global__ void calculate_eta(float *eta, int *cnt, float T){
 	//printf("%d \t %d \t %fd \t %f\n", index, cnt[index], T,eta[index]);
 } 
 
+__global__ void calculate_etaQ(float *eta, int *Q, float t){
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+
+	float eta_prev = eta[index];
+
+	eta[index] =  (((t-1)*eta_prev) + Q[index])/t; 
+
+	// eta[index]=(cnt[index])*(1/T);
+	//printf("%d \t %d \t %fd \t %f\n", index, cnt[index], T,eta[index]);
+} 
+
 __global__ void get_eta_max(float *eta,float *eta_max, int n){
 	
 	int index = threadIdx.x + blockIdx.x * blockDim.x;

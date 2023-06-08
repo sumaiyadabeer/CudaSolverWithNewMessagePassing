@@ -21,6 +21,8 @@ __global__ void copy_eta(float *eta, float *eta_mins);
 
 __global__ void calculate_eta(float *eta, int *cnt, float T);
 
+__global__ void calculate_etaQ(float *eta, int *Q, float t);
+
 __global__ void calculate_eta_del(float *eta_del, float *eta,float *eta_tminus);
 
 __global__ void two_norm(float *eta_del,float *two_norm, int n); //this function changes tha value of eta-del

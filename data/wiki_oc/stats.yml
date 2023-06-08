@@ -1,0 +1,72 @@
+data/wiki_oc/oc_50_b.txt 4704
+beta = 1   N/4 Q=ceil Q/2
+  Epoch: 24056     eta_max: 0.544563       max_allowed_eta: 0.600000       beta: 0.031250           sink: 52       sum: 833        frac: 0.062350          duartion: 212.554 sec
+beta = 0.5   N/4 Q=ceil Q/2
+  Epoch: 24056     eta_max: 0.365397       max_allowed_eta: 0.600000       beta: 0.015625           sink: 40       sum: 499        frac: 0.080000          duartion: 210.859 sec
+beta = 1   N/4 Q=ceil 3Q/4
+  Epoch: 24056     eta_max: 0.390921       max_allowed_eta: 0.600000       beta: 0.015625           sink: 33       sum: 499        frac: 0.066000          duartion: 211.066 sec
+
+beta = 1   max_iter=N/4 Q=ceil 3Q/4
+ Frac of packet sunk: 0.004962   sink: 119       sum: 23982
+Epoch: 24050     eta_max: 0.144948       max_allowed_eta: 0.600000       beta: 1.000000           sink: 119      sum: 23982   frac: 0.004962   duartion: 218.637 sec
+
+3n/4 iter
+ Frac of packet sunk: 0.203922   sink: 156       sum: 764
+Epoch: 72150     eta_max: 0.507138       max_allowed_eta: 0.600000       beta: 0.007812           sink: 156      sum: 764   frac: 0.203922   duartion: 638.411 sec
+
+N iter
+ Frac of packet sunk: 0.253870   sink: 246       sum: 968
+Epoch: 96210     eta_max: 0.587361       max_allowed_eta: 0.600000       beta: 0.007812           sink: 246      sum: 968   frac: 0.253870   duartion: 856.02 sec
+
+N/4 iter Qinit 3 b50_Lsolve_init3_Nby4  Q=ceil Q/2
+ Frac of packet sunk: 0.104790   sink: 35        sum: 333
+Epoch: 24102     eta_max: 0.351963       max_allowed_eta: 0.600000       beta: 0.003906           sink: 35       sum: 333        frac: 0.104790          duartion: 210.553 sec
+see with eta_Q  Q=ceil 3Q/4 eta_max_threshold = 0.2*sum_Q;
+Frac of packet sunk: 0.004287   sink: 104       sum: 24258
+Epoch: 24050     eta_max: 1612.773682    max_allowed_eta: 4851.600000    beta: 1.000000           sink: 104      sum: 24258      frac: 0.004287          duartion: 218.235 sec
+eta  Q=ceil 3Q/4
+Frac of packet sunk: 0.005295   sink: 127       sum: 23982
+Epoch: 24050     eta_max: 0.133472       max_allowed_eta: 0.600000       beta: 1.000000           sink: 127      sum: 23982   frac: 0.005295   duartion: 218.743 sec
+iter = N/4
+Frac of packet sunk: 0.003961   sink: 95        sum: 23982
+Epoch: 24050     eta_max: 1564.505493    max_allowed_eta: 4796.400000    beta: 1.000000           sink: 95       sum: 23982      frac: 0.003961          duartion: 218.077 sec
+iter = N/2 
+Frac of packet sunk: 0.004875   sink: 235       sum: 48206
+Epoch: 48100     eta_max: 3225.434570    max_allowed_eta: 9641.200000    beta: 1.000000           sink: 235      sum: 48206      frac: 0.004875          duartion: 437.013 sec
+iter = 3N/4
+Frac of packet sunk: 0.004872   sink: 351       sum: 72044
+Epoch: 72150     eta_max: 4716.560547    max_allowed_eta: 14408.800000           beta: 1.000000           sink: 351      sum: 72044      frac: 0.004872          duartion: 656.105 sec
+iter = N
+Frac of packet sunk: 0.005102   sink: 491       sum: 96233
+Epoch: 96210     eta_max: 6339.450684    max_allowed_eta: 19246.600000           beta: 1.000000           sink: 491      sum: 96233      frac: 0.005102          duartion: 873.941 sec
+iter = N/8 eta_threshold = 0.05*frac_of_pack_sunk 20k+ zeros
+ Frac of packet sunk: 0.029851   sink: 6         sum: 200
+Epoch: 12028     eta_max: 2.375791       max_allowed_eta: 10.000000      beta: 0.015625           sink: 6        sum: 200        frac: 0.029851          duartion: 103.558 sec
+iter = N/4 eta_threshold = 0.05*frac_of_pack_sunk 20k+ zeros
+ Frac of packet sunk: 0.098361   sink: 6         sum: 60
+Epoch: 24063     eta_max: 1.359889       max_allowed_eta: 3.000000       beta: 0.001953           sink: 6        sum: 60         frac: 0.098361          duartion: 204.041 sec
+
+iter = N/4 Qinit 2 eta_threshold = 0.06*frac_of_pack_sunk  zeros = 4800
+ Frac of packet sunk: 0.004253   sink: 102       sum: 23982
+Epoch: 24050     eta_max: 1323.899536    max_allowed_eta: 1438.920000    beta: 1.000000           sink: 102      sum: 23982      frac: 0.004253          duartion: 218.998 sec
+iter = N/4 Qinit 3 eta_threshold = 0.05*frac_of_pack_sunk  zeros = 0 but the pattern is quite gadbad
+
+Frac of packet sunk: 0.000595   sink: 186       sum: 312582
+Epoch: 24050     eta_max: 13772.395508   max_allowed_eta: 15629.100000           beta: 1.000000           sink: 186      sum: 312582     frac: 0.000595          duartion: 222.073 sec
+painfully slow 
+
+
+data/wiki_oc/oc_25_b.txt sink_index:24919 
+beta = 1   N/4 Q=ceil 3Q/4
+Frac of packet sunk: 0.014312   sink: 347       sum: 24244
+Epoch: 24050     eta_max: 0.131060       max_allowed_eta: 0.600000       beta: 1.000000           sink: 347      sum: 24244      frac: 0.014312          duartion: 217.501 sec
+data/wiki_oc/oc_12_b.txt sink_index:5918 
+beta = 1   N/4 Q=ceil 3Q/4
+ Frac of packet sunk: 0.017134   sink: 419       sum: 24453
+Epoch: 24050     eta_max: 0.136383       max_allowed_eta: 0.600000       beta: 1.000000           sink: 419      sum: 24453      frac: 0.017134          duartion: 217.741 sec
+
+data/wiki_oc/oc_50_b_sink_max.txt
+frac_of_packet_sunk is gt threshold so breaking sink: 1840       sum: 2277      
+Epoch: 4270      eta_max: 0.430913       max_allowed_eta: 0.600000       beta: 0.500000           sink: 1840     sum: 2277       frac: 0.807726          duartion: 37.7057 sec
+
+most of zeroz

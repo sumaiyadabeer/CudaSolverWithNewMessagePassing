@@ -16,8 +16,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
-__global__ void initialize(float *eta, int *cnt, int *queue, int *outbox, int *L, int n, int e, curandState *state, int rand);
+__global__ void initialize_q( int *queue,  int value, curandState *state, int rand);
+__global__ void initialize(float *b,  float *eta, int *cnt, int *queue, int *outbox, int *L, int n, int e, curandState *state, int rand);
 __global__ void convert_b_to_J(float *b,   int n, float *sink_b);
 __global__ void convert_J_to_2betaJ(float *J,   int n, float *beta);
 __global__ void update_b( float *b);

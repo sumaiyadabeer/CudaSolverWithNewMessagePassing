@@ -1,0 +1,40 @@
+Code is executing on device 0 
+......input and copy to device done 
+sink index : 14015 
+eta_max is gt threshold so breaking
+epoch: 100 	 eta_max: 0.970000 	 max_allowed_eta: 0.850000  	 beta: 1.000000 	 duartion: 0.0710893 sec
+eta_max is gt threshold so breaking
+epoch: 100 	 eta_max: 0.950000 	 max_allowed_eta: 0.850000  	 beta: 0.500000 	 duartion: 0.0590658 sec
+frac_of_packet_sunk is gt threshold so breaking sink: 72213	 sum: 75981	 frac: 0.950396
+epoch: 248300 	 eta_max: 0.357318 	 max_allowed_eta: 0.850000  	 beta: 0.250000 	 duartion: 125.727 sec
+Reading graph from input file
+creating Admat_frm_CSR
+
+
+Details: Lsolve 
+--------------------
+The residual norm is 0.12262904518556558
+The relative residual norm is 0.4904462019729866
+startng Pyamg
+Time in Pyamg function 18.03459620475769
+
+
+Details: Default AMG
+--------------------
+MultilevelSolver
+Number of Levels:     2
+Operator Complexity:  1.000
+Grid Complexity:      1.001
+Coarse Solver:        'pinv'
+  level   unknowns     nonzeros
+     0       14016      1978146 [100.00%]
+     1           8           64 [0.00%]
+
+The residual norm is 2.9108262298796147e-05
+The relative residual norm is 0.00011641643844551804
+
+
+The Multigrid Hierarchy
+-----------------------
+A_0:      14016x14016        P_0:      14016x8         
+A_1:          8x8         

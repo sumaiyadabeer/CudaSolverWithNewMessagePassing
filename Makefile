@@ -3,7 +3,7 @@
 CC := nvcc 
 SDIR := src
 ODIR := obj
-CFLAGS :=  -std=c++11 -prec-div=false # -G: device-debug -g host-debug -lineinfo for gdblinetrack -lcublas -arch=sm_70
+CFLAGS :=  -std=c++11 -prec-div=true # -G: device-debug -g host-debug -lineinfo for gdblinetrack -lcublas -arch=sm_70
 
 
 

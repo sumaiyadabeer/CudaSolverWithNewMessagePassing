@@ -1,16 +1,42 @@
 #include "../inc/b_function.h"
 
 
-__global__ void initialize(float *eta, int *cnt, int *queue, int *outbox, int *L, int n, int e, curandState *state, int rand){
+__global__ void initialize_q( int *queue,  int value, curandState *state, int rand){
+        // not actually required as it is already initilaizing with 0
+        int index = threadIdx.x + blockIdx.x * blockDim.x;
+        // curand_init(rand, index, 0, &state[index]);
+        // float randd = curand_uniform(state+index);
+        // queue[index]= int(value*randd);
+        queue[index]= (2)*value;
+	
+}
+
+__global__ void initialize(float *b, float *eta, int *cnt, int *queue, int *outbox, int *L, int n, int e, curandState *state, int rand){
         int index = threadIdx.x + blockIdx.x * blockDim.x;
 	// for (int i=0;i<n;i++){
 	// 	L[n*(index)+i]=0;
 	// }    
         
-        curand_init(rand, index, 0, &state[index]);
-        float randd = curand_uniform(state+index);
-        // queue[index]= 0;
-        queue[index]= int((3)*randd);
+        // curand_init(rand, index, 0, &state[index]);
+        // float randd = curand_uniform(state+index);
+        // queue[index]= int((3)*randd);
+        
+        queue[index] = floorf(3*queue[index]/4); //wiki_oc
+        // queue[index] = floorf(queue[index]/2); // wiki_bug
+
+        if(index == n)
+        queue[index] = 0;
+
+        // if(b[n]==-1.0){
+        //         curand_init(rand, index, 0, &state[index]);
+        //         float randd = curand_uniform(state+index);
+        //         queue[index]= int((3)*randd);
+        //         if(index == n)
+        //         queue[index] = 0;                
+        //         // queue[index]= int((row_ptr[index+1]-row_ptr[index])/105);
+        // }
+
+
         outbox[index]=-1;
         cnt[index]=0;
         eta[index]=0;

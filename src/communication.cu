@@ -16,6 +16,12 @@
 
 using namespace std;
 
+__global__ void init_rand(curandState *my_curandstate, int seed){
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+	curand_init(seed, index, 0, &my_curandstate[index]);
+}
+
+
 __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *queue, int *outbox, int *cnt, curandState *my_curandstate, int seed, int seed2, int E){
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
 	float rand;
@@ -23,23 +29,12 @@ __global__ void send(int *row_ptr, float *b, int *col_off, int *values, int *que
 	int Q; //define that in Shared mem
 	// if(b[index]>=0.0)
 	Q = queue[index];
-	outbox[index] = -1; //remove this in simplest recv
+	// outbox[index] = -1; //remove this in simplest recv
 	
 
 //printf("%f \t", b[index]);
 
 
-//generate packet according b
-
-curand_init(seed, index, 0, &my_curandstate[index]);
-rand = curand_uniform(my_curandstate+index);
-if(b[index] > 0){
-	if(rand <= b[index])
-		{
-			Q++;
-			// printf("[P %d] ", index);				
-		}
-}	
 
 	
 
@@ -47,7 +42,7 @@ if(b[index] > 0){
 if (Q>0 && b[index]>=0.0){
 	int neighbour;
 	int degree = row_ptr[index+1]-row_ptr[index];
-	curand_init(seed2, index, 0, &my_curandstate[index]);
+	// curand_init(seed2, index, 0, &my_curandstate[index]);
 	rand = curand_uniform(my_curandstate);
 	rand = rand*degree;
 	rand = int(floorf(rand));
@@ -56,10 +51,10 @@ if (Q>0 && b[index]>=0.0){
 	}
 
 
-	ASSERT_EX( int(row_ptr[index]+(int(rand))) < row_ptr[index+1], 
-	printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t current row_ptr is = %d \t next row_ptr is = %d\n",
-	index,  int(rand) , int(row_ptr[index]+(floorf(rand))), degree, row_ptr[index],  row_ptr[index+1])
-	);
+	// ASSERT_EX( int(row_ptr[index]+(int(rand))) < row_ptr[index+1], 
+	// printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t current row_ptr is = %d \t next row_ptr is = %d\n",
+	// index,  int(rand) , int(row_ptr[index]+(floorf(rand))), degree, row_ptr[index],  row_ptr[index+1])
+	// );
 	
 	//ASSERT_EX(int(row_ptr[index]+(floor(rand))) < row_ptr[index+1], printf("index %d: neighbour number = %d with col_off index %d \t degree is  = %d \t next row_ptr is = %d\n",index,  int(rand) , int(row_ptr[index]+(floor(rand))), (row_ptr[index+1]-row_ptr[index]), row_ptr[index+1]));
 	// assert( (row_ptr[index]+(floor(rand))) < row_ptr[index+1] ); // to chk actual neighbour is selected
@@ -71,6 +66,18 @@ if (Q>0 && b[index]>=0.0){
 	Q = Q-1; 
 	cnt[index] = cnt[index]+1;
 }
+
+//generate packet according b
+
+// curand_init(seed, index, 0, &my_curandstate[index]);
+rand = curand_uniform(my_curandstate+index);
+if(b[index] > 0){
+	if(rand <= b[index])
+		{
+			Q++;
+			// printf("[P %d] ", index);				
+		}
+}	
 
 
 
@@ -123,3 +130,8 @@ __global__ void thrust_recv(int *outbox_count, int *queue, int *outbox_index, in
 
 } 
 
+__global__ void reset_outbox(int *outbox)
+{
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+	outbox[index] = -1;
+}

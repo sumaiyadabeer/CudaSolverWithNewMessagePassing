@@ -1,0 +1,54 @@
+Code is executing on device 0 
+......input and copy to device done 
+sink index : 7999 
+eta_max is gt threshold so breaking
+epoch: 100 	 eta_max: 0.960000 	 max_allowed_eta: 0.850000  	 beta: 1.000000 	 duartion: 0.0536051 sec
+eta_max is gt threshold so breaking
+epoch: 100 	 eta_max: 0.990000 	 max_allowed_eta: 0.850000  	 beta: 0.500000 	 duartion: 0.042409 sec
+eta_max is gt threshold so breaking
+epoch: 500 	 eta_max: 0.884000 	 max_allowed_eta: 0.850000  	 beta: 0.250000 	 duartion: 0.188814 sec
+eta_max is gt threshold so breaking
+epoch: 250 	 eta_max: 0.944000 	 max_allowed_eta: 0.850000  	 beta: 0.125000 	 duartion: 0.0921171 sec
+eta_max is gt threshold so breaking
+epoch: 120 	 eta_max: 0.925000 	 max_allowed_eta: 0.850000  	 beta: 0.062500 	 duartion: 0.0449398 sec
+eta_max is gt threshold so breaking
+epoch: 620 	 eta_max: 0.900000 	 max_allowed_eta: 0.850000  	 beta: 0.031250 	 duartion: 0.220139 sec
+eta_max is gt threshold so breaking
+epoch: 310 	 eta_max: 0.867742 	 max_allowed_eta: 0.850000  	 beta: 0.015625 	 duartion: 0.111328 sec
+eta_max is gt threshold so breaking
+epoch: 150 	 eta_max: 0.906667 	 max_allowed_eta: 0.850000  	 beta: 0.007812 	 duartion: 0.0550718 sec
+frac_of_packet_sunk is gt threshold so breaking sink: 7631	 sum: 7993	 frac: 0.954591
+epoch: 27144 	 eta_max: 0.369658 	 max_allowed_eta: 0.850000  	 beta: 0.003906 	 duartion: 9.49661 sec
+Reading graph from input file
+creating Admat_frm_CSR
+
+
+Details: Lsolve 
+--------------------
+The residual norm is 0.2775812547042987
+The relative residual norm is 71.04758970891626
+startng Pyamg
+Time in Pyamg function 6.115846157073975
+
+
+Details: Default AMG
+--------------------
+MultilevelSolver
+Number of Levels:     3
+Operator Complexity:  1.000
+Grid Complexity:      1.002
+Coarse Solver:        'pinv'
+  level   unknowns     nonzeros
+     0        8000       647520 [99.98%]
+     1          11          121 [0.02%]
+     2           1            1 [0.00%]
+
+The residual norm is 1.3857044824365617e-06
+The relative residual norm is 0.000354674394821209
+
+
+The Multigrid Hierarchy
+-----------------------
+A_0:       8000x8000         P_0:       8000x11        
+A_1:         11x11           P_1:         11x1         
+A_2:          1x1         
